@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Template;
+use App\Models\User;
+
+class TemplatePolicy
+{
+    public function viewAny(User $user): bool { return $user->can('view templates'); }
+    public function view(User $user, Template $template): bool { return $user->can('view templates') && ($template->status === 'published' || $user->can('edit templates')); }
+    public function create(User $user): bool { return $user->can('create templates'); }
+    public function update(User $user, Template $template): bool { return $user->can('edit templates'); }
+    public function delete(User $user, Template $template): bool { return $user->can('delete templates'); }
+    public function publish(User $user, Template $template): bool { return $user->can('publish templates'); }
+}
