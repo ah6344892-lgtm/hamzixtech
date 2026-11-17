@@ -1,9 +1,82 @@
 @extends('layouts.admin')
-@section('title','Contact messages')
+@section('title', 'Contact messages')
 @section('content')
-<div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-semibold uppercase tracking-widest text-electric-blue">Inbox</p><h1 class="mt-2 text-3xl font-bold">Contact messages</h1></div><span class="text-sm text-muted-text dark:text-soft-slate">{{ $messages->total() }} total</span></div>
-<form method="get" class="mt-6 flex flex-col gap-3 sm:flex-row"><input name="q" value="{{ request('q') }}" placeholder="Search name, email, subject" class="flex-1 rounded-xl border border-soft-border bg-white px-4 py-2.5 dark:border-white/10 dark:bg-slate-navy"><select name="status" class="rounded-xl border border-soft-border bg-white px-4 py-2.5 dark:border-white/10 dark:bg-slate-navy"><option value="">All statuses</option>@foreach(['new','read','replied','closed'] as $status)<option value="{{ $status }}" @selected(request('status')===$status)>{{ ucfirst($status) }}</option>@endforeach</select><button class="rounded-xl border border-soft-border px-4 py-2.5 text-sm font-semibold dark:border-white/10">Filter</button></form>
-<div class="mt-5 space-y-4">@forelse($messages as $message)<article class="rounded-2xl border border-soft-border bg-white p-5 sm:p-6 dark:border-white/10 dark:bg-slate-navy"><div class="flex flex-wrap items-start justify-between gap-4"><div><span class="rounded-full bg-electric-blue/10 px-2.5 py-1 text-xs font-semibold text-electric-blue">{{ ucfirst($message->status) }}</span><h2 class="mt-3 text-lg font-semibold">{{ $message->subject }}</h2><p class="mt-1 text-sm text-muted-text dark:text-soft-slate">{{ $message->name }} · <a href="mailto:{{ $message->email }}" class="text-electric-blue">{{ $message->email }}</a> · {{ $message->created_at->format('M j, Y H:i') }}</p>@if($message->project_type)<p class="mt-1 text-xs text-muted-text dark:text-soft-slate">Topic: {{ $message->project_type }}</p>@endif</div>@can('delete',$message)<form method="post" action="{{ route('admin.contact-messages.destroy',$message) }}" onsubmit="return confirm('Permanently delete this message?')">@csrf @method('DELETE')<button type="submit" class="text-sm font-semibold text-red-600">Delete</button></form>@endcan</div><p class="mt-5 whitespace-pre-line text-sm leading-6">{{ $message->message }}</p>
-    <form method="post" action="{{ route('admin.contact-messages.update',$message) }}" class="mt-5 grid gap-4 border-t border-soft-border pt-5 dark:border-white/10 sm:grid-cols-2">@csrf @method('PATCH')<div><label class="block text-xs font-semibold" for="status-{{ $message->id }}">Status</label><select id="status-{{ $message->id }}" name="status" class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy">@foreach(['new','read','replied','closed'] as $status)<option value="{{ $status }}" @selected($message->status===$status)>{{ ucfirst($status) }}</option>@endforeach</select></div><div class="sm:col-span-2"><label class="block text-xs font-semibold" for="notes-{{ $message->id }}">Internal notes</label><textarea id="notes-{{ $message->id }}" name="internal_notes" rows="2" class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy">{{ $message->internal_notes }}</textarea></div>@can('reply',$message)<div class="sm:col-span-2"><label class="block text-xs font-semibold" for="reply-{{ $message->id }}">Email reply (optional)</label><textarea id="reply-{{ $message->id }}" name="reply_body" rows="3" class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy" placeholder="Enter a reply to send to {{ $message->email }}"></textarea></div>@endcan<div><flux:button type="submit" size="sm" variant="primary" color="blue">Save status</flux:button></div></form>
-</article>@empty<div class="rounded-2xl border border-dashed border-soft-border p-10 text-center text-sm text-muted-text dark:border-white/15 dark:text-soft-slate">No messages found.</div>@endforelse</div><div class="mt-6">{{ $messages->links() }}</div>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-electric-blue">Inbox</p>
+            <h1 class="mt-2 text-3xl font-bold">Contact messages</h1>
+        </div><span class="text-sm text-muted-text dark:text-soft-slate">{{ $messages->total() }} total</span>
+    </div>
+    <form method="get" class="mt-6 flex flex-col gap-3 sm:flex-row"><input name="q" value="{{ request('q') }}"
+            placeholder="Search name, email, subject"
+            class="flex-1 rounded-xl border border-soft-border bg-white px-4 py-2.5 dark:border-white/10 dark:bg-slate-navy"><select
+            name="status"
+            class="rounded-xl border border-soft-border bg-white px-4 py-2.5 dark:border-white/10 dark:bg-slate-navy">
+            <option value="">All statuses</option>
+            @foreach (['new', 'read', 'replied', 'closed'] as $status)
+                <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
+            @endforeach
+        </select>
+        <button
+            class="rounded-xl border border-soft-border px-4 py-2.5 text-sm font-semibold dark:border-white/10">Filter</button>
+    </form>
+    <div class="mt-5 space-y-4">
+        @forelse($messages as $message)
+            <article
+                class="rounded-2xl border border-soft-border bg-white p-5 sm:p-6 dark:border-white/10 dark:bg-slate-navy">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div><span
+                            class="rounded-full bg-electric-blue/10 px-2.5 py-1 text-xs font-semibold text-electric-blue">{{ ucfirst($message->status) }}</span>
+                        <h2 class="mt-3 text-lg font-semibold">{{ $message->subject }}</h2>
+                        <p class="mt-1 text-sm text-muted-text dark:text-soft-slate">{{ $message->name }} · <a
+                                href="mailto:{{ $message->email }}" class="text-electric-blue">{{ $message->email }}</a> ·
+                            {{ $message->created_at->format('M j, Y H:i') }}</p>
+                        @if ($message->project_type)
+                            <p class="mt-1 text-xs text-muted-text dark:text-soft-slate">Topic:
+                                {{ $message->project_type }}</p>
+                        @endif
+                    </div>
+                    @can('delete', $message)
+                        <form method="post" action="{{ route('admin.contact-messages.destroy', $message) }}"
+                            onsubmit="return confirm('Permanently delete this message?')">@csrf @method('DELETE')<button
+                                type="submit" class="text-sm font-semibold text-red-600">Delete</button></form>
+                    @endcan
+                </div>
+                <p class="mt-5 whitespace-pre-line text-sm leading-6">{{ $message->message }}</p>
+                <form method="post" action="{{ route('admin.contact-messages.update', $message) }}"
+                    class="mt-5 grid gap-4 border-t border-soft-border pt-5 dark:border-white/10 sm:grid-cols-2">@csrf
+                    @method('PATCH')<div><label class="block text-xs font-semibold"
+                            for="status-{{ $message->id }}">Status</label><select id="status-{{ $message->id }}"
+                            name="status"
+                            class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy">
+                            @foreach (['new', 'read', 'replied', 'closed'] as $status)
+                                <option value="{{ $status }}" @selected($message->status === $status)>{{ ucfirst($status) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-semibold"
+                            for="notes-{{ $message->id }}">Internal notes</label>
+                        <textarea id="notes-{{ $message->id }}" name="internal_notes" rows="2"
+                            class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy">{{ $message->internal_notes }}</textarea>
+                    </div>
+                    @can('reply', $message)
+                        <div class="sm:col-span-2"><label class="block text-xs font-semibold"
+                                for="reply-{{ $message->id }}">Email reply (optional)</label>
+                            <textarea id="reply-{{ $message->id }}" name="reply_body" rows="3"
+                                class="mt-2 w-full rounded-lg border border-soft-border bg-light-background px-3 py-2 dark:border-white/10 dark:bg-deep-navy"
+                                placeholder="Enter a reply to send to {{ $message->email }}"></textarea>
+                        </div>
+                    @endcan
+                    <div>
+                        <flux:button type="submit" size="sm" variant="primary" color="blue">Save status
+                        </flux:button>
+                    </div>
+                </form>
+        </article>@empty<div
+                class="rounded-2xl border border-dashed border-soft-border p-10 text-center text-sm text-muted-text dark:border-white/15 dark:text-soft-slate">
+                No messages found.</div>
+        @endforelse
+    </div>
+    <div class="mt-6">{{ $messages->links() }}</div>
 @endsection

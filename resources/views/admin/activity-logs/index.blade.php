@@ -1,5 +1,35 @@
 @extends('layouts.admin')
-@section('title','Activity log')
+@section('title', 'Activity log')
 @section('content')
-<div><p class="text-sm font-semibold uppercase tracking-widest text-electric-blue">Security and changes</p><h1 class="mt-2 text-3xl font-bold">Activity log</h1><p class="mt-2 text-sm text-muted-text dark:text-soft-slate">Recent actions recorded by the management panel.</p></div><div class="mt-6 overflow-x-auto rounded-2xl border border-soft-border bg-white dark:border-white/10 dark:bg-slate-navy"><table class="w-full min-w-[720px] text-left text-sm"><thead class="bg-light-background text-xs uppercase text-muted-text dark:bg-deep-navy dark:text-soft-slate"><tr><th class="px-4 py-3">Event</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Actor</th><th class="px-4 py-3">When</th></tr></thead><tbody class="divide-y divide-soft-border dark:divide-white/10">@forelse($logs as $log)<tr><td class="px-4 py-3 font-medium">{{ $log->event }}</td><td class="px-4 py-3">{{ $log->description }}</td><td class="px-4 py-3">{{ $log->user?->name ?? 'System' }}</td><td class="px-4 py-3 text-muted-text dark:text-soft-slate">{{ $log->created_at->format('Y-m-d H:i') }}</td></tr>@empty<tr><td colspan="4" class="p-8 text-center text-muted-text">No activity recorded yet.</td></tr>@endforelse</tbody></table></div><div class="mt-5">{{ $logs->links() }}</div>
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-widest text-electric-blue">Security and changes</p>
+        <h1 class="mt-2 text-3xl font-bold">Activity log</h1>
+        <p class="mt-2 text-sm text-muted-text dark:text-soft-slate">Recent actions recorded by the management panel.</p>
+    </div>
+    <div class="mt-6 overflow-x-auto rounded-2xl border border-soft-border bg-white dark:border-white/10 dark:bg-slate-navy">
+        <table class="w-full min-w-[720px] text-left text-sm">
+            <thead class="bg-light-background text-xs uppercase text-muted-text dark:bg-deep-navy dark:text-soft-slate">
+                <tr>
+                    <th class="px-4 py-3">Event</th>
+                    <th class="px-4 py-3">Description</th>
+                    <th class="px-4 py-3">Actor</th>
+                    <th class="px-4 py-3">When</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-soft-border dark:divide-white/10">
+                @forelse($logs as $log)
+                    <tr>
+                        <td class="px-4 py-3 font-medium">{{ $log->event }}</td>
+                        <td class="px-4 py-3">{{ $log->description }}</td>
+                        <td class="px-4 py-3">{{ $log->user?->name ?? 'System' }}</td>
+                        <td class="px-4 py-3 text-muted-text dark:text-soft-slate">
+                            {{ $log->created_at->format('Y-m-d H:i') }}</td>
+                </tr>@empty<tr>
+                        <td colspan="4" class="p-8 text-center text-muted-text">No activity recorded yet.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-5">{{ $logs->links() }}</div>
 @endsection

@@ -1,11 +1,71 @@
 @extends('layouts.admin')
-@section('title',$user->exists?'Edit staff member':'Create staff member')
+@section('title', $user->exists ? 'Edit staff member' : 'Create staff member')
 @section('content')
-<a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-electric-blue">← Staff accounts</a><h1 class="mt-3 text-3xl font-bold">{{ $user->exists?'Edit staff account':'Create staff account' }}</h1><form method="post" action="{{ $user->exists?route('admin.users.update',$user):route('admin.users.store') }}" class="mt-7 max-w-3xl space-y-5 rounded-2xl border border-soft-border bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-slate-navy">@csrf @if($user->exists)@method('PUT')@endif
-<div><label for="name" class="block text-sm font-medium">Name</label><input id="name" name="name" value="{{ old('name',$user->name) }}" required class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">@error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div>
-<div><label for="email" class="block text-sm font-medium">Email</label><input id="email" type="email" name="email" value="{{ old('email',$user->email) }}" required class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">@error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div>
-<div class="grid gap-5 sm:grid-cols-2"><div><label for="password" class="block text-sm font-medium">{{ $user->exists?'New password (optional)':'Temporary password' }}</label><input id="password" type="password" name="password" {{ $user->exists?'':'required' }} autocomplete="new-password" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">@error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div><div><label for="password_confirmation" class="block text-sm font-medium">Confirm password</label><input id="password_confirmation" type="password" name="password_confirmation" autocomplete="new-password" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy"></div></div>
-<div><p class="text-sm font-medium">Roles</p><div class="mt-2 grid gap-2 sm:grid-cols-2">@foreach($roles as $role)<label class="flex items-start gap-3 rounded-xl border border-soft-border p-3 dark:border-white/10"><input type="checkbox" name="roles[]" value="{{ $role->id }}" @checked(collect(old('roles',$user->exists?$user->roles->pluck('id')->all():[]))->contains($role->id)) class="mt-1 rounded border-soft-border text-electric-blue"><span><span class="block text-sm font-semibold">{{ $role->name }}</span><span class="text-xs text-muted-text dark:text-soft-slate">{{ $role->permissions->count() }} permissions</span></span></label>@endforeach</div>@error('roles.*')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div>
-@if(!$user->exists || auth()->user()->can('deactivate',$user))<input type="hidden" name="is_active" value="0"><label class="flex items-center gap-3"><input type="checkbox" name="is_active" value="1" @checked(old('is_active',$user->exists?$user->is_active:true)) class="rounded border-soft-border text-electric-blue"><span class="text-sm font-medium">Active account</span></label>@else<div class="text-sm text-muted-text dark:text-soft-slate">Account status: {{ $user->is_active?'Active':'Inactive' }} (you do not have permission to change it)</div>@endif
-<div class="flex gap-3"><flux:button type="submit" variant="primary" color="blue">Save account</flux:button><a href="{{ route('admin.users.index') }}" class="rounded-lg border border-soft-border px-4 py-2.5 text-sm font-semibold dark:border-white/10">Cancel</a></div></form>
+    <a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-electric-blue">
+        ← Staff accounts</a>
+    <h1 class="mt-3 text-3xl font-bold">{{ $user->exists ? 'Edit staff account' : 'Create staff account' }}</h1>
+    <form method="post" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}"
+        class="mt-7 max-w-3xl space-y-5 rounded-2xl border border-soft-border bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-slate-navy">
+        @csrf @if ($user->exists)
+            @method('PUT')
+        @endif
+        <div><label for="name" class="block text-sm font-medium">Name</label><input id="name" name="name"
+                value="{{ old('name', $user->name) }}" required
+                class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">
+            @error('name')
+                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+        <div><label for="email" class="block text-sm font-medium">Email</label><input id="email" type="email"
+                name="email" value="{{ old('email', $user->email) }}" required
+                class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">
+            @error('email')
+                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div><label for="password"
+                    class="block text-sm font-medium">{{ $user->exists ? 'New password (optional)' : 'Temporary password' }}</label><input
+                    id="password" type="password" name="password" {{ $user->exists ? '' : 'required' }}
+                    autocomplete="new-password"
+                    class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">
+                @error('password')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+            <div><label for="password_confirmation" class="block text-sm font-medium">Confirm password</label><input
+                    id="password_confirmation" type="password" name="password_confirmation" autocomplete="new-password"
+                    class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 dark:border-white/10 dark:bg-deep-navy">
+            </div>
+        </div>
+        <div>
+            <p class="text-sm font-medium">Roles</p>
+            <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                @foreach ($roles as $role)
+                    <label
+                        class="flex items-start gap-3 rounded-xl border border-soft-border p-3 dark:border-white/10"><input
+                            type="checkbox" name="roles[]" value="{{ $role->id }}" @checked(collect(old('roles', $user->exists ? $user->roles->pluck('id')->all() : []))->contains($role->id))
+                            class="mt-1 rounded border-soft-border text-electric-blue"><span><span
+                                class="block text-sm font-semibold">{{ $role->name }}</span><span
+                                class="text-xs text-muted-text dark:text-soft-slate">{{ $role->permissions->count() }}
+                                permissions</span></span></label>
+                @endforeach
+            </div>
+            @error('roles.*')
+                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+        @if (!$user->exists || auth()->user()->can('deactivate', $user))
+            <input type="hidden" name="is_active" value="0"><label class="flex items-center gap-3"><input
+                    type="checkbox" name="is_active" value="1" @checked(old('is_active', $user->exists ? $user->is_active : true))
+                    class="rounded border-soft-border text-electric-blue"><span class="text-sm font-medium">Active
+                account</span></label>@else<div class="text-sm text-muted-text dark:text-soft-slate">Account status:
+                {{ $user->is_active ? 'Active' : 'Inactive' }} (you do not have permission to change it)</div>
+        @endif
+        <div class="flex gap-3">
+            <flux:button type="submit" variant="primary" color="blue">Save account</flux:button><a
+                href="{{ route('admin.users.index') }}"
+                class="rounded-lg border border-soft-border px-4 py-2.5 text-sm font-semibold dark:border-white/10">Cancel</a>
+        </div>
+    </form>
 @endsection

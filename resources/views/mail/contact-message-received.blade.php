@@ -1,11 +1,11 @@
 <x-mail::message>
-# New contact message
+    # New contact message
 
-**From:** {{ $messageRecord->name }} ({{ $messageRecord->email }})
+    **From:** {{ $messageRecord->name }} ({{ $messageRecord->email }})
 
-**Subject:** {{ $messageRecord->subject }}
+    **Subject:** {{ $messageRecord->subject }}
 
-{{ $messageRecord->message }}
+    {{ $messageRecord->message }}
 
-View and manage submissions in the HamzixTech administration panel.
+    View and manage submissions in the HamzixTech administration panel.
 </x-mail::message>

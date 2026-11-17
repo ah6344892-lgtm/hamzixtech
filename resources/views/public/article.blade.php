@@ -1,9 +1,79 @@
 @extends('layouts.app')
-@section('title', ($post->seo_title ?: $post->title).' | HamzixTech')
+@section('title', ($post->seo_title ?: $post->title) . ' | HamzixTech')
 @section('meta_description', $post->seo_description ?: $post->excerpt ?: 'Article from HamzixTech.')
-@section('og_type','article')
-@section('canonical',$post->canonical_url ?: url()->current())
+@section('og_type', 'article')
+@section('canonical', $post->canonical_url ?: url()->current())
 @section('content')
-<article class="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-16"><a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-electric-blue transition hover:gap-3">← Back to journal</a><header class="public-page-hero mx-auto mt-6 max-w-5xl px-6 py-9 sm:px-10 sm:py-12">@if($post->category)<a href="{{ route('blog.category',$post->category->slug) }}" class="public-kicker">{{ $post->category->name }}</a>@else<p class="public-kicker">Journal</p>@endif<h1 class="public-page-title">{{ $post->title }}</h1><div class="mt-5 flex flex-wrap gap-2 text-xs font-medium text-muted-text dark:text-soft-slate">@if($post->author)<span class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">{{ $post->author->name }}</span>@endif@if($post->published_at)<time class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5" datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('M j, Y') }}</time>@endif<span class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">{{ max(1, (int) ceil(str_word_count(strip_tags($post->content)) / 220)) }} min read</span></div>@if($post->excerpt)<p class="public-page-description">{{ $post->excerpt }}</p>@endif</header>@if($post->featured_image)<img class="mx-auto mt-7 max-h-[34rem] w-full max-w-5xl rounded-3xl object-cover shadow-xl shadow-slate-900/10" src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->featured_image_alt }}">@endif<div class="prose-content mx-auto mt-8 max-w-3xl rounded-2xl border border-soft-border bg-white p-6 leading-8 text-muted-text shadow-sm sm:p-10 dark:border-white/10 dark:bg-slate-navy dark:text-soft-slate" data-tilt>{!! \Illuminate\Support\Str::markdown($post->content, ['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}@if($post->tags->isNotEmpty())<div class="mt-8 flex flex-wrap gap-2 border-t border-soft-border pt-6 dark:border-white/10">@foreach($post->tags as $tag)<a href="{{ route('blog.tag',$tag->slug) }}" class="rounded-full bg-electric-blue/10 px-3 py-1 text-xs font-medium text-electric-blue">#{{ $tag->name }}</a>@endforeach</div>@endif<div class="mt-8 border-t border-soft-border pt-6 dark:border-white/10"><p class="text-sm font-semibold">Share this article</p><div class="mt-3 flex flex-wrap gap-3"><a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(request()->fullUrl()) }}" target="_blank" rel="noopener noreferrer" class="rounded-full border border-soft-border px-3 py-1.5 text-sm text-electric-blue transition hover:bg-electric-blue/5 dark:border-white/10">LinkedIn</a><a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" target="_blank" rel="noopener noreferrer" class="rounded-full border border-soft-border px-3 py-1.5 text-sm text-electric-blue transition hover:bg-electric-blue/5 dark:border-white/10">Facebook</a></div></div></div></article>
-@if($related->isNotEmpty())<section class="border-t border-soft-border bg-white py-12 dark:border-white/10 dark:bg-slate-navy/40"><div class="mx-auto max-w-7xl px-5 sm:px-8"><h2 class="text-2xl font-bold">Related articles</h2><div class="mt-6 grid gap-4 md:grid-cols-3">@foreach($related as $item)<a href="{{ route('blog.show',$item) }}" class="rounded-xl border border-soft-border p-5 dark:border-white/10"><h3 class="font-semibold">{{ $item->title }}</h3><p class="mt-2 line-clamp-2 text-sm text-muted-text dark:text-soft-slate">{{ $item->excerpt }}</p></a>@endforeach</div></div></section>@endif
+    <article class="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
+        <a href="{{ route('blog.index') }}"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-electric-blue transition hover:gap-3">← Back to
+            journal</a>
+        <header class="public-page-hero mx-auto mt-6 max-w-5xl px-6 py-9 sm:px-10 sm:py-12">
+            @if ($post->category)
+                <a href="{{ route('blog.category', $post->category->slug) }}"
+                class="public-kicker">{{ $post->category->name }}</a>@else<p class="public-kicker">Journal</p>
+            @endif
+            <h1 class="public-page-title">
+                {{ $post->title }}</h1>
+            <div class="mt-5 flex flex-wrap gap-2 text-xs font-medium text-muted-text dark:text-soft-slate">
+                @if ($post->author)
+                    <span
+                        class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">{{ $post->author->name }}</span>
+                    @endif@if ($post->published_at)
+                        <time
+                            class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5"
+                            datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('M j, Y') }}</time>
+                    @endif
+                    <span
+                        class="rounded-full border border-soft-border bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
+                        {{ max(1, (int) ceil(str_word_count(strip_tags($post->content)) / 220)) }} min read</span>
+            </div>
+            @if ($post->excerpt)
+                <p class="public-page-description">{{ $post->excerpt }}</p>
+            @endif
+        </header>
+        @if ($post->featured_image)
+            <img class="mx-auto mt-7 max-h-[34rem] w-full max-w-5xl rounded-3xl object-cover shadow-xl shadow-slate-900/10"
+                src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->featured_image_alt }}">
+        @endif
+        <div class="prose-content mx-auto mt-8 max-w-3xl rounded-2xl border border-soft-border bg-white p-6 leading-8 text-muted-text shadow-sm sm:p-10 dark:border-white/10 dark:bg-slate-navy dark:text-soft-slate"
+            data-tilt>
+            {!! \Illuminate\Support\Str::markdown($post->content, ['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}@if ($post->tags->isNotEmpty())
+                <div class="mt-8 flex flex-wrap gap-2 border-t border-soft-border pt-6 dark:border-white/10">
+                    @foreach ($post->tags as $tag)
+                        <a href="{{ route('blog.tag', $tag->slug) }}"
+                            class="rounded-full bg-electric-blue/10 px-3 py-1 text-xs font-medium text-electric-blue">#{{ $tag->name }}</a>
+                    @endforeach
+                </div>
+            @endif
+            <div class="mt-8 border-t border-soft-border pt-6 dark:border-white/10">
+                <p class="text-sm font-semibold">Share this article</p>
+                <div class="mt-3 flex flex-wrap gap-3"><a
+                        href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(request()->fullUrl()) }}"
+                        target="_blank" rel="noopener noreferrer"
+                        class="rounded-full border border-soft-border px-3 py-1.5 text-sm text-electric-blue transition hover:bg-electric-blue/5 dark:border-white/10">LinkedIn</a><a
+                        href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}"
+                        target="_blank" rel="noopener noreferrer"
+                        class="rounded-full border border-soft-border px-3 py-1.5 text-sm text-electric-blue transition hover:bg-electric-blue/5 dark:border-white/10">Facebook</a>
+                </div>
+            </div>
+        </div>
+    </article>
+    @if ($related->isNotEmpty())
+        <section class="border-t border-soft-border bg-white py-12 dark:border-white/10 dark:bg-slate-navy/40">
+            <div class="mx-auto max-w-7xl px-5 sm:px-8">
+                <h2 class="text-2xl font-bold">Related articles</h2>
+                <div class="mt-6 grid gap-4 md:grid-cols-3">
+                    @foreach ($related as $item)
+                        <a href="{{ route('blog.show', $item) }}"
+                            class="rounded-xl border border-soft-border p-5 dark:border-white/10">
+                            <h3 class="font-semibold">{{ $item->title }}</h3>
+                            <p class="mt-2 line-clamp-2 text-sm text-muted-text dark:text-soft-slate">{{ $item->excerpt }}
+                            </p>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 @endsection

@@ -1,23 +1,110 @@
 @extends('layouts.app')
-@section('title','Contact | HamzixTech')
-@section('meta_description','Contact HamzixTech to discuss a website, software project, or technology question.')
+@section('title', 'Contact | HamzixTech')
+@section('meta_description', 'Contact HamzixTech to discuss a website, software project, or technology question.')
 @section('content')
-<section class="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 sm:py-16 lg:grid-cols-[.82fr_1.18fr]">
-<div class="public-page-hero self-start px-6 py-8 sm:px-8 sm:py-10"><p class="public-kicker">Let’s talk</p><h1 class="public-page-title text-4xl sm:text-5xl">Tell us what you have in mind.</h1><p class="public-page-description">Share your goals or question and we’ll get back to you. Please avoid sending passwords or other sensitive information.</p><div class="mt-8 space-y-3 text-sm">@if($email)<a class="flex items-center gap-3 rounded-xl border border-soft-border bg-white/70 p-4 transition hover:border-electric-blue/35 dark:border-white/10 dark:bg-white/[.04]" href="mailto:{{ $email }}"><span class="flex size-10 items-center justify-center rounded-xl bg-electric-blue/10 text-electric-blue"><flux:icon icon="envelope" variant="mini" /></span><span><span class="block text-xs text-muted-text dark:text-soft-slate">Email</span><span class="mt-0.5 block font-semibold">{{ $email }}</span></span></a>@endif@if($whatsapp)<a class="flex items-center gap-3 rounded-xl border border-soft-border bg-white/70 p-4 transition hover:border-electric-blue/35 dark:border-white/10 dark:bg-white/[.04]" href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"><span class="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"><span aria-hidden="true">↗</span></span><span><span class="block text-xs text-muted-text dark:text-soft-slate">WhatsApp</span><span class="mt-0.5 block font-semibold">Start a chat</span></span></a>@endif@if(!$email && !$whatsapp)<p class="rounded-xl border border-soft-border bg-white/60 p-4 text-muted-text dark:border-white/10 dark:bg-white/[.03] dark:text-soft-slate">Direct contact options are being configured. You can still use the form.</p>@endif</div><div class="mt-8 border-t border-soft-border pt-5 text-xs leading-5 text-muted-text dark:border-white/10 dark:text-soft-slate"><p>Usually helps to include:</p><ul class="mt-2 space-y-1"><li>• What you’re trying to build</li><li>• The main problem to solve</li><li>• Any timing or constraints</li></ul></div></div>
-<div class="rounded-2xl border border-soft-border bg-white p-6 shadow-[0_24px_70px_-52px_rgba(15,23,42,.35)] sm:p-8 dark:border-white/10 dark:bg-slate-navy" data-tilt>
-    @if(config('hamzixtech.ui_mode') === 'livewire')
-        <livewire:public.contact-form />
-    @else
-    @if(session('contact_success'))<div role="status" class="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">{{ session('contact_success') }}</div>@endif
-    @if($errors->any())<div role="alert" class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm"><p class="font-semibold">Please check the highlighted information.</p></div>@endif
-    <form method="post" action="{{ route('contact.store') }}" class="space-y-5">@csrf
-        <div class="absolute -left-[10000px]" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
-        <div class="grid gap-5 sm:grid-cols-2"><div><label for="name" class="block text-sm font-medium">Name</label><input id="name" name="name" value="{{ old('name') }}" required maxlength="120" autocomplete="name" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">@error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div><div><label for="email" class="block text-sm font-medium">Email</label><input id="email" type="email" name="email" value="{{ old('email') }}" required maxlength="190" autocomplete="email" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">@error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div></div>
-        <div><label for="project_type" class="block text-sm font-medium">What is this about? <span class="font-normal text-muted-text">(optional)</span></label><select id="project_type" name="project_type" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy"><option value="">Select a topic</option>@foreach(['Website','Web application','API or backend','UI implementation','Technology question','Other'] as $type)<option @selected(old('project_type') === $type)>{{ $type }}</option>@endforeach</select></div>
-        <div><label for="subject" class="block text-sm font-medium">Subject</label><input id="subject" name="subject" value="{{ old('subject') }}" required maxlength="180" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">@error('subject')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div>
-        <div><label for="message" class="block text-sm font-medium">Message</label><textarea id="message" name="message" rows="6" required minlength="20" maxlength="10000" class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">{{ old('message') }}</textarea>@error('message')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror</div>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs leading-5 text-muted-text dark:text-soft-slate">By sending this form, your message and contact details are stored so we can respond. See our <a class="text-electric-blue underline" href="{{ route('privacy') }}">Privacy Policy</a>.</p><flux:button type="submit" variant="primary" color="blue">Send message</flux:button></div>
-    </form>
-    @endif
-</div></section>
+    <section class="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 sm:py-16 lg:grid-cols-[.82fr_1.18fr]">
+        <div class="public-page-hero self-start px-6 py-8 sm:px-8 sm:py-10">
+            <p class="public-kicker">Let’s talk</p>
+            <h1 class="public-page-title text-4xl sm:text-5xl">Tell us what you have in mind.</h1>
+            <p class="public-page-description">Share your goals or question and we’ll get back to you. Please avoid sending
+                passwords or other sensitive information.</p>
+            <div class="mt-8 space-y-3 text-sm">
+                @if ($email)
+                    <a class="flex items-center gap-3 rounded-xl border border-soft-border bg-white/70 p-4 transition hover:border-electric-blue/35 dark:border-white/10 dark:bg-white/[.04]"
+                        href="mailto:{{ $email }}"><span
+                            class="flex size-10 items-center justify-center rounded-xl bg-electric-blue/10 text-electric-blue">
+                            <flux:icon icon="envelope" variant="mini" />
+                        </span><span><span class="block text-xs text-muted-text dark:text-soft-slate">Email</span><span
+                                class="mt-0.5 block font-semibold">{{ $email }}</span></span></a>
+                    @endif@if ($whatsapp)
+                        <a class="flex items-center gap-3 rounded-xl border border-soft-border bg-white/70 p-4 transition hover:border-electric-blue/35 dark:border-white/10 dark:bg-white/[.04]"
+                            href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"><span
+                                class="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"><span
+                                    aria-hidden="true">↗</span></span><span><span
+                                    class="block text-xs text-muted-text dark:text-soft-slate">WhatsApp</span><span
+                                    class="mt-0.5 block font-semibold">Start a chat</span></span></a>
+                        @endif@if (!$email && !$whatsapp)
+                            <p
+                                class="rounded-xl border border-soft-border bg-white/60 p-4 text-muted-text dark:border-white/10 dark:bg-white/[.03] dark:text-soft-slate">
+                                Direct contact options are being configured. You can still use the form.</p>
+                        @endif
+            </div>
+            <div
+                class="mt-8 border-t border-soft-border pt-5 text-xs leading-5 text-muted-text dark:border-white/10 dark:text-soft-slate">
+                <p>Usually helps to include:</p>
+                <ul class="mt-2 space-y-1">
+                    <li>• What you’re trying to build</li>
+                    <li>• The main problem to solve</li>
+                    <li>• Any timing or constraints</li>
+                </ul>
+            </div>
+        </div>
+        <div class="rounded-2xl border border-soft-border bg-white p-6 shadow-[0_24px_70px_-52px_rgba(15,23,42,.35)] sm:p-8 dark:border-white/10 dark:bg-slate-navy"
+            data-tilt>
+            @if (config('hamzixtech.ui_mode') === 'livewire')
+                <livewire:public.contact-form />
+            @else
+                @if (session('contact_success'))
+                    <div role="status" class="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
+                        {{ session('contact_success') }}</div>
+                @endif
+                @if ($errors->any())
+                    <div role="alert" class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+                        <p class="font-semibold">Please check the highlighted information.</p>
+                    </div>
+                @endif
+                <form method="post" action="{{ route('contact.store') }}" class="space-y-5">@csrf
+                    <div class="absolute -left-[10000px]" aria-hidden="true"><label for="website">Leave this field
+                            empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div><label for="name" class="block text-sm font-medium">Name</label><input id="name"
+                                name="name" value="{{ old('name') }}" required maxlength="120" autocomplete="name"
+                                class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">
+                            @error('name')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div><label for="email" class="block text-sm font-medium">Email</label><input id="email"
+                                type="email" name="email" value="{{ old('email') }}" required maxlength="190"
+                                autocomplete="email"
+                                class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">
+                            @error('email')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div><label for="project_type" class="block text-sm font-medium">What is this about? <span
+                                class="font-normal text-muted-text">(optional)</span></label><select id="project_type"
+                            name="project_type"
+                            class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">
+                            <option value="">Select a topic</option>
+                            @foreach (['Website', 'Web application', 'API or backend', 'UI implementation', 'Technology question', 'Other'] as $type)
+                                <option @selected(old('project_type') === $type)>{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div><label for="subject" class="block text-sm font-medium">Subject</label><input id="subject"
+                            name="subject" value="{{ old('subject') }}" required maxlength="180"
+                            class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">
+                        @error('subject')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div><label for="message" class="block text-sm font-medium">Message</label>
+                        <textarea id="message" name="message" rows="6" required minlength="20" maxlength="10000"
+                            class="mt-2 w-full rounded-xl border border-soft-border bg-light-background px-4 py-3 outline-none focus:ring-2 focus:ring-electric-blue dark:border-white/10 dark:bg-deep-navy">{{ old('message') }}</textarea>
+                        @error('message')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-xs leading-5 text-muted-text dark:text-soft-slate">By sending this form, your message
+                            and contact details are stored so we can respond. See our <a
+                                class="text-electric-blue underline" href="{{ route('privacy') }}">Privacy Policy</a>.</p>
+                        <flux:button type="submit" variant="primary" color="blue">Send message</flux:button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    </section>
 @endsection
